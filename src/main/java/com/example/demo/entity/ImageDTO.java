@@ -1,19 +1,21 @@
 package com.example.demo.entity;
-
 import jakarta.persistence.*;
+import lombok.Getter;
 
+@Getter
 @Entity
-public class new_post_save {
+public class ImageDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer post_id;
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private String img;
+    @Column
     private String txt;
 
-    public new_post_save(){}
-    public void set_post_save(String img, String text) {
+    public ImageDTO(){}
+    public ImageDTO(String img, String text) {
         this.img = img;
         this.txt = text;
     }
