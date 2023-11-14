@@ -40,7 +40,7 @@ public class MainController {
 
     @PostMapping(path="upload")
     @ResponseBody
-    public String upload_post(@RequestBody ImageDTO imageDTO) {
+    public String postImage(@RequestBody ImageDTO imageDTO) {
         imageRepository.save(imageDTO);
         return "Saved";
     }

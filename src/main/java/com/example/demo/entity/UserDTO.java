@@ -1,25 +1,37 @@
 package com.example.demo.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.Getter;
 
+@Getter
 @Entity // This tells Hibernate to make a table out of this class
 public class UserDTO {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    private Integer id;
-
+    private Integer  identifier;
+    @Column
+    private String id;
+    @Column
     private String name;
-
+    @Column
     private String email;
+    @Column
+    private String password;
 
-    public Integer getId() {
+    public UserDTO(){}
+
+    public UserDTO(String name, String id, String password, String email) {
+        this.name = name;
+        this.id = id;
+        this.password = password;
+        this.email = email;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -29,6 +41,14 @@ public class UserDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String name) {
+        this.password = password;
     }
 
     public String getEmail() {
