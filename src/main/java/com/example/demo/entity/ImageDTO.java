@@ -15,11 +15,4 @@ public class ImageDTO {
     private String txt;
 
     public ImageDTO(){}
-    public ImageDTO(String img, String text) {
-        this.img = img;
-        this.txt = text;
-    }
-
-    public String get_img() { return this.img; }
-    public String get_txt() { return this.txt; }
 }
