@@ -8,6 +8,7 @@ public class ImageDTO {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer post_id;
+    private String post_owner;
     @Lob
     @Column(columnDefinition = "LONGBLOB")
     private String img;
@@ -15,11 +16,6 @@ public class ImageDTO {
     private String txt;
 
     public ImageDTO(){}
-    public ImageDTO(String img, String text) {
-        this.img = img;
-        this.txt = text;
-    }
 
-    public String get_img() { return this.img; }
-    public String get_txt() { return this.txt; }
+    public void setPost_owner(String post_owner){ this.post_owner = post_owner; }
 }

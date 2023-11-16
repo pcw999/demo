@@ -49,7 +49,9 @@ public class MainController {
 
     @PostMapping(path="upload")
     @ResponseBody
-    public String postImage(@RequestBody ImageDTO imageDTO) {
+    public String postImage(@RequestHeader String Authorization , @RequestBody ImageDTO imageDTO) {
+        String user = User_parsing(Authorization);
+        imageDTO.setPost_owner(user);
         imageRepository.save(imageDTO);
         return "Saved";
     }
