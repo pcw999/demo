@@ -10,10 +10,12 @@ public class ImageDTO {
     private Integer post_id;
     private String post_owner;
     @Lob
-    @Column(columnDefinition = "LONGBLOB")
+    @Column(columnDefinition = "LONGBLOB", nullable = false)
     private String img;
     @Column
     private String txt;
+    @Column
+    private String date;
 
     public ImageDTO(){}
 

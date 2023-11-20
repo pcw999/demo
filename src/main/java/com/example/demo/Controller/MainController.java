@@ -14,6 +14,7 @@ import com.example.demo.Repository.UserRepository;
 // for sample_post
 import com.example.demo.Repository.post_repository;
 
+import java.security.Key;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -41,11 +42,13 @@ public class MainController {
         return "Saved";
     }
 
+    /*
     @GetMapping(path="all")
     public @ResponseBody Iterable<UserDTO> getAllUsers() {
         // This returns a JSON or XML with the users
         return userRepository.findAll();
     }
+     */
 
     @PostMapping(path="upload")
     @ResponseBody
@@ -56,12 +59,10 @@ public class MainController {
         return "Saved";
     }
 
-    @PostMapping(path="add_sample")
-    public @ResponseBody String addNewPost (@RequestParam String text) {
-        sample_post sample = new sample_post();
-        sample.set_text(text);
-        post_repo.save(sample);
-        return "Saved";
+    @GetMapping(path="download")
+    @ResponseBody
+    public Iterable<ImageDTO> getAllImages () {
+        return imageRepository.findAll();
     }
 
     @GetMapping(path="sample_post")
@@ -92,7 +93,7 @@ public class MainController {
                         .setSubject(now_user.getId())
                         .setIssuedAt(new Date(System.currentTimeMillis()))
                         .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                        .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+                        .signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes())
                         .compact();
 
                 return new AuthResponse("201", "token_created", token, now_user);
