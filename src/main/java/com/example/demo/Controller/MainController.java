@@ -42,14 +42,6 @@ public class MainController {
         return "Saved";
     }
 
-    /*
-    @GetMapping(path="all")
-    public @ResponseBody Iterable<UserDTO> getAllUsers() {
-        // This returns a JSON or XML with the users
-        return userRepository.findAll();
-    }
-     */
-
     @PostMapping(path="upload")
     @ResponseBody
     public String postImage(@RequestHeader String Authorization , @RequestBody ImageDTO imageDTO) {
@@ -82,7 +74,7 @@ public class MainController {
 
     @PostMapping(path="login")
     @ResponseBody
-    public AuthResponse login(@RequestBody LoginDTO loginDTO) {
+        public AuthResponse login(@RequestBody LoginDTO loginDTO) {
         List<UserDTO> result = userRepository.findById(loginDTO.getId());
         if(result.isEmpty()) { // 유저 존재 x
             return new AuthResponse("404", "Not Found", null, null);
@@ -102,6 +94,23 @@ public class MainController {
             }
         }
     }
+
+    @PostMapping(path="modify")
+    @ResponseBody
+    public String modifyUser(@RequestBody UserDTO userDTO) {
+        Optional<UserDTO> optionalResult = userRepository.findById(userDTO.getIdentifier());
+        if (optionalResult.isPresent()) {
+            UserDTO existingUser = optionalResult.get();
+            existingUser.setName(userDTO.getName());
+            existingUser.setId(userDTO.getId());
+            existingUser.setPassword(userDTO.getPassword());
+            existingUser.setEmail(userDTO.getEmail());
+            existingUser.setDate(userDTO.getDate());
+            userRepository.save(existingUser);
+            return "modify";
+        }else return "fail";
+    }
+
 
     public String User_parsing(String token) {
         try {

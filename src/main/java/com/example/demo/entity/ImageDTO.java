@@ -12,6 +12,9 @@ public class ImageDTO {
     @Lob
     @Column(columnDefinition = "LONGBLOB", nullable = false)
     private String img;
+    @Lob
+    @Column(columnDefinition = "LONGBLOB")
+    private String profileImg;
     @Column
     private String txt;
     @Column
