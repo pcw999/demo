@@ -106,6 +106,7 @@ public class MainController {
             existingUser.setPassword(userDTO.getPassword());
             existingUser.setEmail(userDTO.getEmail());
             existingUser.setDate(userDTO.getDate());
+            existingUser.setProfileImg(userDTO.getProfileImg());
             userRepository.save(existingUser);
             return "modify";
         }else return "fail";
