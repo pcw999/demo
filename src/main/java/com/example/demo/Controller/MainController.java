@@ -1,6 +1,6 @@
 package com.example.demo.Controller;
 
-import com.example.demo.Repository.ImageRepository;
+import com.example.demo.Repository.*;
 import com.example.demo.entity.*;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -9,10 +9,8 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import com.example.demo.Repository.UserRepository;
 
 // for sample_post
-import com.example.demo.Repository.post_repository;
 
 import java.security.Key;
 import java.util.Date;
@@ -29,6 +27,10 @@ public class MainController {
     private ImageRepository imageRepository;
     @Autowired
     private post_repository post_repo;
+    @Autowired
+    private chatRepository chat_repo;
+    @Autowired
+    private chatRoomRepository chat_room_repo;
 
     private static final String SECRET_KEY = "31415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679";
     private static final long EXPIRATION_TIME = 864_000_000; // 10 days
@@ -91,6 +93,7 @@ public class MainController {
             if(now_user.getPassword().equals(loginDTO.getPassword())) { // 비번 일치 x
                 String token = Jwts.builder()
                         .setSubject(now_user.getId())
+                        .claim("uid", now_user.getIdentifier())
                         .setIssuedAt(new Date(System.currentTimeMillis()))
                         .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                         .signWith(SignatureAlgorithm.HS256, SECRET_KEY.getBytes())
@@ -103,6 +106,64 @@ public class MainController {
         }
     }
 
+
+    @PostMapping(path="add_chat/{opp_id}")
+    @ResponseBody
+    public int addChat(@RequestHeader String Authorization , @PathVariable String opp_id) {
+        Integer now_identifier = User_parsing_int(Authorization);
+        if(userRepository.existsById(opp_id)) {
+            UserDTO oppdto = userRepository.findById(opp_id).get(0);
+            ChatCount user_chat = chat_room_repo.findByIdentifier(now_identifier);
+            if(user_chat == null) {
+                ChatCount start_chat = new ChatCount(now_identifier, oppdto.getIdentifier(), opp_id);
+                ChatCount start_opp_chat = new ChatCount(oppdto.getIdentifier(), now_identifier, User_parsing(Authorization));
+                chat_room_repo.save(start_chat);
+                chat_room_repo.save(start_opp_chat);
+            }
+            else if(is_exist(user_chat.get_user_list(), opp_id)) {
+                return 2; // 이미 있음
+            }
+            else {
+                user_chat.add_user(oppdto.getIdentifier(), opp_id);
+                ChatCount opp_chat = chat_room_repo.findByIdentifier(oppdto.getIdentifier());
+                opp_chat.add_user(now_identifier, User_parsing(Authorization));
+                chat_room_repo.save(user_chat);
+                chat_room_repo.save(opp_chat);
+            }
+            return 1; // 성공
+        }
+        else {
+            return 0; // 없는 유저
+        }
+    }
+
+    @GetMapping(path="chat_room")
+    @ResponseBody
+    public ChatCount chatRoom(@RequestHeader String Authorization) {
+        return chat_room_repo.findByIdentifier(User_parsing_int(Authorization));
+    }
+
+    @PostMapping(path="postchat/{room_id}")
+    @ResponseBody
+    public int addChatMessage(@PathVariable String room_id, @RequestBody ChatList chatList) {
+        chatList.setRoom_id(room_id);
+        System.out.println(chatList.getMessageContent());
+        chat_repo.save(chatList);
+        return 1;
+    }
+
+    @GetMapping(path="getchatinit/{room_id}")
+    @ResponseBody
+    public Iterable<ChatList>load_Message(@PathVariable String room_id) {
+        return chat_repo.findByRoomId(room_id);
+    }
+
+    @GetMapping(path="getchat/{room_id}/{chat_cnt}")
+    @ResponseBody
+    public Iterable<ChatList>load_Message(@PathVariable String room_id, @PathVariable Integer chat_cnt) {
+        return chat_repo.findByRoomIdAndIdxGreaterThan(room_id, chat_cnt);
+    }
+
     public String User_parsing(String token) {
         try {
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(SECRET_KEY.getBytes()).build().parseClaimsJws(token.substring(7));
@@ -112,6 +173,26 @@ public class MainController {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public int User_parsing_int(String token) {
+        try {
+            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(SECRET_KEY.getBytes()).build().parseClaimsJws(token.substring(7));
+            return claims.getBody().get("uid", Integer.class);
+        } catch (Exception e) {
+            // 토큰 파싱 오류 처리
+            e.printStackTrace();
+            return -999;
+        }
+    }
+
+    public boolean is_exist(String[] list, String id) {
+        for (String s : list) {
+            if (id.equals(s)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
